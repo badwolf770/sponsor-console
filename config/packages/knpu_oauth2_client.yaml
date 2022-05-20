@@ -1,0 +1,11 @@
+knpu_oauth2_client:
+    clients:
+        # configure your clients as described here: https://github.com/knpuniversity/oauth2-client-bundle#configuration
+        keycloak_main:
+            # this will be one of the supported types
+            type: keycloak
+            auth_server_url:
+            realm:
+            client_id:
+            client_secret:
+            redirect_route: keycloak_check_login_credentials

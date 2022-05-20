@@ -1,0 +1,27 @@
+# Codeception Test Suite Configuration
+#
+# Suite for unit or integration tests.
+
+actor: UnitTester
+modules:
+  enabled:
+    - Asserts
+    - \App\Tests\Helper\Unit
+    - Db:
+        dsn: 'pgsql:host=postgres-test;dbname=postgres'
+        user: 'root'
+        password: 'root'
+        dump: 'tests/_data/dump'
+        populate: true
+        cleanup: false
+        reconnect: true
+        waitlock: 10
+        populator: 'export PGPASSWORD=root; psql --username=$user --host=$host --dbname=$dbname -c "DROP SCHEMA IF EXISTS public CASCADE";pg_restore --no-owner --username=$user --host=$host --dbname=$dbname < $dump'
+    - Symfony:
+        kernel_class: 'App\Shared\Infrastructure\Kernel'
+        app_path: 'src/App/Shared/Infrastructure'
+        environment: 'test'
+        part: services
+    - Doctrine2:
+        depends: Symfony
+        cleanup: false

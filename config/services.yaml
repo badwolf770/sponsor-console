@@ -1,0 +1,88 @@
+# This file is the entry point to configure your own services.
+# Files in the packages/ subdirectory configure your dependencies.
+
+# Put parameters here that don't need to change on each machine where the app is deployed
+# https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
+parameters:
+
+services:
+  Symfony\Component\DependencyInjection\ContainerInterface: '@service_container'
+  # default configuration for services in *this* file
+  _defaults:
+    autowire: true      # Automatically injects dependencies in your services.
+    autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+    public: false
+
+  _instanceof:
+    App\Shared\Application\Command\CommandHandlerInterface:
+      public: true
+      tags:
+        - { name: messenger.message_handler, bus: messenger.bus.command }
+
+    App\Shared\Application\Query\QueryHandlerInterface:
+      public: true
+      tags:
+        - { name: messenger.message_handler, bus: messenger.bus.query }
+
+    App\Shared\Infrastructure\Bus\AsyncEvent\AsyncEventHandlerInterface:
+      public: true
+      tags:
+        - { name: messenger.message_handler, bus: messenger.bus.event.async }
+  # makes classes in src/ available to be used as services
+  # this creates a service per class whose id is the fully-qualified class name
+  App\:
+    resource: '../src/App/*'
+    exclude:
+      - '../src/App/**/{*Dto.php}'
+      - '../src/App/**/{*Subscriber.php}'
+      - '../src/App/**/{*Event.php}'
+      - '../src/App/DataFixtures/'
+  UI\:
+    resource: '../src/UI/*'
+    exclude: '../src/UI/**/{*Subscriber}'
+
+  App\Shared\Infrastructure\Bus\Command\MessengerCommandBus:
+    arguments:
+      - '@messenger.bus.command'
+
+  App\Shared\Infrastructure\Bus\Query\MessengerQueryBus:
+    arguments:
+      - '@messenger.bus.query'
+
+  App\Shared\Infrastructure\Bus\AsyncEvent\MessengerAsyncEventBus:
+    arguments:
+      - '@messenger.bus.event.async'
+
+  UI\Cli\Command\:
+    resource: '../src/UI/Cli/Command'
+
+  UI\Http\Rest\Controller\:
+    resource: '../src/UI/Http/Rest/Controller/*'
+    tags: [ 'controller.service_arguments' ]
+
+  jms_serializer.naming_strategy:
+    alias: jms_serializer.identical_property_naming_strategy
+
+  App\Shared\Infrastructure\Subscriber\DatabaseActivitySubscriber:
+    tags:
+      - { name: 'doctrine.event_subscriber' }
+
+  UI\Http\Rest\EventListener\JsonRequestTransformerListener:
+    tags:
+      - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest, priority: 100 }
+
+  App\Shared\Domain\Error\ValidationErrorNormalizer:
+    tags:
+      - { name: jms_serializer.subscribing_handler }
+
+  App\Shared\Application\Service\ParamsConverter:
+    tags:
+      - { name: request.param_converter, converter: custom.param_converter }
+
+  App\Shared\Infrastructure\Security\LocalhostAuthenticator:
+    public: true
+  Mdg\KeycloakAuth\KeycloakAuthenticator:
+    autowire: true
+    public: true
+    arguments:
+      $userCreator: '@App\Shared\Infrastructure\Security\KeycloakUserCreator'

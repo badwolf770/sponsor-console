@@ -1,0 +1,54 @@
+monolog:
+  channels: ['user_channel']
+  handlers:
+    #    main:
+    #      type: stream
+    #      path: "%kernel.logs_dir%/%kernel.environment%.log"
+    #      level: debug
+    #      channels: ["!event"]
+    # uncomment to get logging in your browser
+    # you may have to allow bigger header sizes in your Web server configuration
+    #firephp:
+    #    type: firephp
+    #    level: info
+    #chromephp:
+    #    type: chromephp
+    #    level: info
+    #    console:
+    #      type: console
+    #      process_psr_3_messages: false
+    #      channels: ["!event", "!doctrine", "!console"]
+    user_handler:
+      level: info
+      type: stream
+      path: '%kernel.logs_dir%/user.log'
+      channels: ['user_channel']
+    main:
+      type:         fingers_crossed
+      action_level: critical
+      excluded_http_codes: [404, 405]
+      buffer_size: 50 # How many messages should be saved? Prevent memory leaks
+      handler:      grouped
+      channels: ['!user_channel']
+    grouped:
+      type:    group
+      members: [streamed, deduplicated]
+    streamed:
+      type:  stream
+      path:  "%kernel.logs_dir%/%kernel.environment%.log"
+      level: debug
+    deduplicated:
+      type:    deduplication
+      handler: symfony_mailer
+    symfony_mailer:
+      type:         symfony_mailer
+      from_email:   '%env(MAILER_MAIL_FROM)%'
+      to_email:     []
+      subject:      'Ошибка! %%message%%'
+      level:        info
+      formatter:    monolog.formatter.html
+      content_type: text/html
+    console:
+      type: console
+      process_psr_3_messages: false
+      channels: ["!event", "!doctrine", "!console",'!user_channel']

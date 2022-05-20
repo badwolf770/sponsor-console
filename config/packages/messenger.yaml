@@ -1,0 +1,36 @@
+framework:
+  messenger:
+    default_bus: messenger.bus.command
+    # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
+    # failure_transport: failed
+    buses:
+      messenger.bus.command:
+        default_middleware: false
+        middleware:
+          #          - messenger.middleware.validation
+          - handle_message
+
+      messenger.bus.query:
+        default_middleware: false
+        middleware:
+          - handle_message
+
+      messenger.bus.event.async:
+        default_middleware: allow_no_handlers
+    transports:
+      # https://symfony.com/doc/current/messenger.html#transport-configuration
+      async:
+        dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+        retry_strategy:
+          max_retries: 3
+          # milliseconds delay
+          delay: 5000
+          max_delay: 0
+          multiplier: 1
+      # failed: 'doctrine://default?queue_name=failed'
+      # sync: 'sync://'
+    routing:
+      # Route your messages to the transports
+      'App\Project\Application\Command\ImportTemplatePackage\ImportTemplatePackageCommand': async
+      'App\Project\Application\Command\Export\ExportCommand': async
+      'App\Project\Application\Command\CalculateStatisticsByPackage\CalculateStatisticsByPackageCommand': async

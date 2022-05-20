@@ -1,0 +1,20 @@
+app.swagger_ui:
+  path: /api/doc
+  methods: GET
+  defaults: { _controller: nelmio_api_doc.controller.swagger_ui }
+keycloak_login:
+  path: /api/login
+  methods: GET
+  controller: Mdg\KeycloakAuth\KeycloakAuthenticator::start
+  condition: "'%kernel.environment%' === 'prod'"
+keycloak_login_dev:
+  path: /api/login
+  methods: GET
+  controller: App\Shared\Infrastructure\Security\LocalhostAuthenticator::start
+  condition: "'%kernel.environment%' === 'dev'"
+keycloak_check_login_credentials:
+  path: /api/login/check-credentials
+  controller: Mdg\KeycloakAuth\KeycloakAuthenticator::checkLoginCredentials
+  methods: GET
+index:
+  path: /

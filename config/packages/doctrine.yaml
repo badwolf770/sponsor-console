@@ -1,0 +1,31 @@
+doctrine:
+  dbal:
+    url: '%env(resolve:DATABASE_URL)%'
+
+    # IMPORTANT: You MUST configure your server version,
+    # either here or in the DATABASE_URL env var (see .env file)
+    #server_version: '5.7'
+  orm:
+    auto_generate_proxy_classes: true
+    naming_strategy: doctrine.orm.naming_strategy.underscore_number_aware
+    auto_mapping: true
+    mappings:
+      App:
+        is_bundle: false
+        type: annotation
+        dir: '%kernel.project_dir%/src/App/Shared/Infrastructure/Entity'
+        prefix: 'App\Shared\Infrastructure\Entity'
+        alias: App
+      Project:
+        is_bundle: false
+        type: annotation
+        dir: '%kernel.project_dir%/src/App/Project/Infrastructure/Entity'
+        prefix: 'App\Project\Infrastructure\Entity'
+        alias: Project
+    dql:
+      string_functions:
+        JSON_GET_TEXT: Scienta\DoctrineJsonFunctions\Query\AST\Functions\Postgresql\JsonGetText
+    filters:
+      softdeleteable:
+        class: Gedmo\SoftDeleteable\Filter\SoftDeleteableFilter
+        enabled: true

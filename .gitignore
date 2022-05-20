@@ -1,0 +1,32 @@
+
+###> symfony/framework-bundle ###
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+# /public/bundles/
+# /public/frontend/
+/src/preload.php
+/var/
+/vendor/
+/node_modules/
+###< symfony/framework-bundle ###
+
+.idea
+symfony.lock
+###> lexik/jwt-authentication-bundle ###
+/config/jwt/*.pem
+###< lexik/jwt-authentication-bundle ###
+public/*
+public/bundles
+!public/index.php
+/public/upload
+/public/frontend
+/public/index.html
+yarn-error.log
+csv2xlsx
+package.lock
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###
+/package-lock.json
